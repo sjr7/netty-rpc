@@ -3,7 +3,7 @@ package com.suny.rpc.nettyrpc.core.spring;
 import com.suny.rpc.nettyrpc.core.annotations.Reference;
 import com.suny.rpc.nettyrpc.core.annotations.Service;
 import com.suny.rpc.nettyrpc.core.registry.RpcServiceRegistry;
-import com.suny.rpc.nettyrpc.core.registry.RpcServiceRegistryParam;
+import com.suny.rpc.nettyrpc.core.registry.param.RpcServiceRegistryParam;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;

@@ -1,10 +1,9 @@
 package com.suny.rpc.nettyrpc.core.registry.impl;
 
-import com.suny.rpc.nettyrpc.core.registry.RpcServiceRegistry;
-import com.suny.rpc.nettyrpc.core.registry.RpcServiceRegistryParam;
-import com.suny.rpc.nettyrpc.core.registry.RpcServiceUnRegistryParam;
+import com.suny.rpc.nettyrpc.core.enums.RegistryCenterType;
+import com.suny.rpc.nettyrpc.core.registry.param.RpcServiceRegistryParam;
+import com.suny.rpc.nettyrpc.core.registry.param.RpcServiceUnRegistryParam;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 /**
@@ -13,19 +12,23 @@ import org.springframework.stereotype.Service;
  * @author sunjianrong
  * @date 2021/8/22 下午5:21
  */
-@Primary
 @Service
 @Slf4j
-public class RedisRpcServiceRegistryImpl implements RpcServiceRegistry {
+public class RedisRpcServiceRegistryImpl extends AbstractRpcServiceRegistry {
+
 
     @Override
-    public void register(RpcServiceRegistryParam registryParam) {
-        log.info("【RPC服务注册】{} >> {}:{}", registryParam.getServiceName(), registryParam.getIp(), registryParam.getPort());
+    void doRegister(RpcServiceRegistryParam registryParam) {
+        // todo redis 节点注册
     }
 
     @Override
-    public void unRegister(RpcServiceUnRegistryParam unRegistryParam) {
-        log.info("【RPC服务反注册】{} >> {}:{}", unRegistryParam.getServiceName(), unRegistryParam.getIp(), unRegistryParam.getPort());
+    void doUnRegister(RpcServiceUnRegistryParam unRegistryParam) {
+        // redis 节点反注册
     }
 
+    @Override
+    public RegistryCenterType getRegistryCenterType() {
+        return RegistryCenterType.REDIS;
+    }
 }

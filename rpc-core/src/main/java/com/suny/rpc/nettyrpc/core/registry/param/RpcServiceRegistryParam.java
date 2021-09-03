@@ -1,4 +1,4 @@
-package com.suny.rpc.nettyrpc.core.registry;
+package com.suny.rpc.nettyrpc.core.registry.param;
 
 import lombok.Data;
 

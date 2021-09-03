@@ -1,12 +1,14 @@
 package com.suny.rpc.nettyrpc.core.registry.impl;
 
-import com.suny.rpc.nettyrpc.core.registry.RpcServiceRegistry;
-import com.suny.rpc.nettyrpc.core.discovery.ServiceAddress;
-import com.suny.rpc.nettyrpc.core.registry.RpcServiceRegistryParam;
-import com.suny.rpc.nettyrpc.core.registry.RpcServiceUnRegistryParam;
+import com.suny.rpc.nettyrpc.core.enums.RegistryCenterType;
+import com.suny.rpc.nettyrpc.core.ext.zookeeper.ZookeeperHelper;
+import com.suny.rpc.nettyrpc.core.registry.param.RpcServiceRegistryParam;
+import com.suny.rpc.nettyrpc.core.registry.param.RpcServiceUnRegistryParam;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
+import java.net.InetSocketAddress;
 
 /**
  * Zookeeper 服务
@@ -14,17 +16,31 @@ import java.util.List;
  * @author sunjianrong
  * @date 2021/8/22 下午5:19
  */
+@Primary
 @Component
-public class ZookeeperRpcServiceRegistryImpl implements RpcServiceRegistry {
+@Slf4j
+public class ZookeeperRpcServiceRegistryImpl extends AbstractRpcServiceRegistry {
 
-    @Override
-    public void register(RpcServiceRegistryParam registryParam) {
+    private final ZookeeperHelper zookeeperHelper;
 
+    public ZookeeperRpcServiceRegistryImpl(ZookeeperHelper zookeeperHelper) {
+        this.zookeeperHelper = zookeeperHelper;
     }
 
     @Override
-    public void unRegister(RpcServiceUnRegistryParam unRegistryParam) {
+    public RegistryCenterType getRegistryCenterType() {
+        return RegistryCenterType.ZOOKEEPER;
+    }
 
+    @Override
+    void doRegister(RpcServiceRegistryParam registryParam) {
+        zookeeperHelper.createNode(ZookeeperHelper.BASE_RPC_PATH + "/" + registryParam.getServiceName());
+    }
+
+    @Override
+    void doUnRegister(RpcServiceUnRegistryParam unRegistryParam) {
+        final InetSocketAddress inetSocketAddress = new InetSocketAddress(unRegistryParam.getIp(), unRegistryParam.getPort());
+        zookeeperHelper.removeNode(inetSocketAddress);
     }
 
 }

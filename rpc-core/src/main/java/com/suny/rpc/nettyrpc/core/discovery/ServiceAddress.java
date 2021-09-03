@@ -1,6 +1,8 @@
 package com.suny.rpc.nettyrpc.core.discovery;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.List;
@@ -10,6 +12,8 @@ import java.util.List;
  * @date 2021/8/22 下午5:15
  */
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class ServiceAddress implements Serializable {
 
     /**

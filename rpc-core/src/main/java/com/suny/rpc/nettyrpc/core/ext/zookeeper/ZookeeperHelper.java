@@ -8,11 +8,10 @@ import org.apache.curator.framework.recipes.cache.PathChildrenCache;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
+import org.springframework.stereotype.Component;
 
 import java.net.InetSocketAddress;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.TimeUnit;
@@ -24,6 +23,7 @@ import java.util.concurrent.TimeUnit;
  * @date 2021/8/25 下午11:10
  */
 @Slf4j
+@Component
 public class ZookeeperHelper {
 
     public static final String ZOOKEEPER_ADDRESS = "127.0.0.1:2181";
@@ -33,7 +33,26 @@ public class ZookeeperHelper {
     private static final Map<String, List<String>> RPC_SERVICE_ADDRESS_MAP = new ConcurrentHashMap<>();
     public static final Set<String> PATH_SET = new ConcurrentSkipListSet<>();
 
-    public static List<String> getChildrenNodes(String rpcServiceName) {
+    public List<String> getChildrenNodesValue(String rpcServiceName) {
+        final List<String> childrenNodes = getChildrenNodes(rpcServiceName);
+        if (childrenNodes == null) {
+            return Collections.emptyList();
+        }
+
+        List<String> res = new ArrayList<>();
+        for (String childrenNode : childrenNodes) {
+            try {
+                final byte[] bytes = getZookeeperClient().getData().forPath(childrenNode);
+                res.add(new String(bytes));
+            } catch (Exception e) {
+                // e.printStackTrace();
+                throw new RuntimeException("读取节点值" + rpcServiceName + "失败");
+            }
+        }
+        return res;
+    }
+
+    public List<String> getChildrenNodes(String rpcServiceName) {
         checkInit();
         if (RPC_SERVICE_ADDRESS_MAP.containsKey(rpcServiceName)) {
             return RPC_SERVICE_ADDRESS_MAP.get(rpcServiceName);
@@ -53,21 +72,22 @@ public class ZookeeperHelper {
         return res;
     }
 
-    public static void createNode(String path) {
+    public void createNode(String path) {
         checkInit();
         try {
             if (PATH_SET.contains(path) || zookeeperClient.checkExists().forPath(path) != null) {
-                log.info("节点 {} 已经存在", path);
+                log.debug("节点 {} 已经存在", path);
             } else {
                 zookeeperClient.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).forPath(path);
             }
         } catch (Exception e) {
             log.info("节点 {} 创建失败", path, e);
+            throw new RuntimeException("创建节点" + path + "失败", e);
         }
     }
 
 
-    public static void removeNode(InetSocketAddress inetSocketAddress) {
+    public void removeNode(InetSocketAddress inetSocketAddress) {
         checkInit();
         PATH_SET.forEach(p -> {
             if (p.endsWith(inetSocketAddress.toString())) {
@@ -82,7 +102,7 @@ public class ZookeeperHelper {
         log.info("服务 {} 清理完成", inetSocketAddress.toString());
     }
 
-    private static void checkInit() {
+    private void checkInit() {
         if (zookeeperClient != null && zookeeperClient.getState() == CuratorFrameworkState.STARTED) {
             return;
         }
@@ -108,13 +128,13 @@ public class ZookeeperHelper {
     /**
      * @return zookeeper 操作客户端
      */
-    public static CuratorFramework getZookeeperClient() {
+    public CuratorFramework getZookeeperClient() {
         checkInit();
         return zookeeperClient;
     }
 
 
-    private static void registerWatcher(String rpcServiceName) throws Exception {
+    private void registerWatcher(String rpcServiceName) throws Exception {
         checkInit();
         String path = BASE_RPC_PATH + "/" + rpcServiceName;
         PathChildrenCache pathChildrenCache = new PathChildrenCache(zookeeperClient, path, true);

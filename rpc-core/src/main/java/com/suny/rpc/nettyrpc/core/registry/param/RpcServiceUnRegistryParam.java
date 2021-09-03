@@ -1,4 +1,4 @@
-package com.suny.rpc.nettyrpc.core.registry;
+package com.suny.rpc.nettyrpc.core.registry.param;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -28,5 +28,5 @@ public class RpcServiceUnRegistryParam implements Serializable {
     /**
      * 端口
      */
-    private String port;
+    private int port;
 }

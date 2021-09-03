@@ -1,6 +1,6 @@
 package com.suny.rpc.nettyrpc.core.manager;
 
-import com.suny.rpc.nettyrpc.core.registry.RpcServiceRegistryParam;
+import com.suny.rpc.nettyrpc.core.registry.param.RpcServiceRegistryParam;
 
 import java.net.InetSocketAddress;
 
