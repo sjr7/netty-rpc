@@ -3,11 +3,13 @@ package com.suny.rpc.nettyrpc.core.ext.zookeeper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.framework.api.GetDataBuilder;
 import org.apache.curator.framework.imps.CuratorFrameworkState;
 import org.apache.curator.framework.recipes.cache.PathChildrenCache;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.stereotype.Component;
 
 import java.net.InetSocketAddress;
@@ -24,7 +26,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 @Component
-public class ZookeeperHelper {
+public class ZookeeperHelper implements DisposableBean {
 
     public static final String ZOOKEEPER_ADDRESS = "127.0.0.1:2181";
     public static final String BASE_RPC_PATH = "/rpc";
@@ -33,6 +35,64 @@ public class ZookeeperHelper {
     private static final Map<String, List<String>> RPC_SERVICE_ADDRESS_MAP = new ConcurrentHashMap<>();
     public static final Set<String> PATH_SET = new ConcurrentSkipListSet<>();
 
+
+    /**
+     * 创建服务节点
+     *
+     * @param rpcServiceName 服务类名
+     */
+    public void createServiceInstanceNode(String rpcServiceName) {
+        checkInit();
+        final String serviceNode = BASE_RPC_PATH + "/" + rpcServiceName + "/node";
+        try {
+            zookeeperClient.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL_SEQUENTIAL).forPath(serviceNode);
+        } catch (Exception e) {
+            log.info("节点 {} 创建失败", serviceNode, e);
+            throw new RuntimeException("创建节点" + serviceNode + "失败", e);
+        }
+    }
+
+
+    public List<String> getServiceInstanceNode(String rpcServiceName) {
+        checkInit();
+        final String serviceNodeName = BASE_RPC_PATH + "/" + rpcServiceName;
+        try {
+            List<String> serviceNodeList = zookeeperClient.getChildren().forPath(serviceNodeName);
+            List<String> res = new ArrayList<>();
+            for (String childrenNode : serviceNodeList) {
+                try {
+                    final byte[] bytes = getZookeeperClient().getData().forPath(serviceNodeName + "/" + childrenNode);
+                    res.add(new String(bytes));
+                } catch (Exception e) {
+                    // throw new RuntimeException("读取节点值" + rpcServiceName + "失败");
+                    log.info("读取节点值 {} 失败", rpcServiceName, e);
+                }
+            }
+            return res;
+        } catch (Exception e) {
+            log.info("获取 {} 子节点列表失败", serviceNodeName, e);
+            return Collections.emptyList();
+        }
+    }
+
+    public Map<String, List<String>> getAllServiceInstanceNode() {
+        Map<String, List<String>> res = new HashMap<>();
+
+        try {
+            List<String> serviceNodeList = zookeeperClient.getChildren().forPath(BASE_RPC_PATH);
+            for (String s : serviceNodeList) {
+                res.put(s, getServiceInstanceNode(s));
+            }
+
+            return res;
+        } catch (Exception e) {
+            log.info("获取 {} 子节点列表失败", BASE_RPC_PATH, e);
+            return res;
+        }
+    }
+
+
+    @Deprecated
     public List<String> getChildrenNodesValue(String rpcServiceName) {
         final List<String> childrenNodes = getChildrenNodes(rpcServiceName);
         if (childrenNodes == null) {
@@ -52,6 +112,7 @@ public class ZookeeperHelper {
         return res;
     }
 
+    @Deprecated
     public List<String> getChildrenNodes(String rpcServiceName) {
         checkInit();
         if (RPC_SERVICE_ADDRESS_MAP.containsKey(rpcServiceName)) {
@@ -72,13 +133,16 @@ public class ZookeeperHelper {
         return res;
     }
 
+
+    @Deprecated
     public void createNode(String path) {
         checkInit();
+
         try {
             if (PATH_SET.contains(path) || zookeeperClient.checkExists().forPath(path) != null) {
                 log.debug("节点 {} 已经存在", path);
             } else {
-                zookeeperClient.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).forPath(path);
+                final String createPath = zookeeperClient.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL).forPath(path);
             }
         } catch (Exception e) {
             log.info("节点 {} 创建失败", path, e);
@@ -87,6 +151,7 @@ public class ZookeeperHelper {
     }
 
 
+    @Deprecated
     public void removeNode(InetSocketAddress inetSocketAddress) {
         checkInit();
         PATH_SET.forEach(p -> {
@@ -139,6 +204,22 @@ public class ZookeeperHelper {
         String path = BASE_RPC_PATH + "/" + rpcServiceName;
         PathChildrenCache pathChildrenCache = new PathChildrenCache(zookeeperClient, path, true);
         PathChildrenCacheListener listener = (f, e) -> {
+            final GetDataBuilder data = f.getData();
+            if (data != null) {
+                switch (e.getType()) {
+                    case CHILD_ADDED:
+                        log.debug("添加节点");
+                        break;
+                    case CHILD_REMOVED:
+                        log.debug("删除节点");
+                        break;
+                    case CHILD_UPDATED:
+                        log.debug("节点更新");
+                        break;
+                    default:
+                        log.debug("未处理事件类型 {}", e.getType());
+                }
+            }
             List<String> list = f.getChildren().forPath(path);
             RPC_SERVICE_ADDRESS_MAP.put(rpcServiceName, list);
         };
@@ -146,5 +227,11 @@ public class ZookeeperHelper {
         pathChildrenCache.getListenable().addListener(listener);
         pathChildrenCache.start();
 
+    }
+
+    @Override
+    public void destroy() throws Exception {
+        log.info("Zookeeper开始关闭!");
+        zookeeperClient.close();
     }
 }

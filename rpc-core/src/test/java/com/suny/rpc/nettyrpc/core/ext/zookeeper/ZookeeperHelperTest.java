@@ -3,9 +3,7 @@ package com.suny.rpc.nettyrpc.core.ext.zookeeper;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.imps.CuratorFrameworkState;
 import org.apache.zookeeper.CreateMode;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 
@@ -13,6 +11,7 @@ import java.net.InetSocketAddress;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 
 class ZookeeperHelperTest {
@@ -25,6 +24,31 @@ class ZookeeperHelperTest {
         MockitoAnnotations.initMocks(this);
     }
 
+    @AfterEach
+    void distory() throws Exception {
+        zookeeperHelper.destroy();
+    }
+
+    @Test
+    void testGetServiceInstanceNode() {
+        final List<String> serviceInstanceNode = zookeeperHelper.getServiceInstanceNode("com.suny.rpc.nettyrpc.api.UserService");
+        assertNotNull(serviceInstanceNode);
+        Assertions.assertTrue(serviceInstanceNode.size() > 0);
+    }
+
+    @Test
+    public void testCreateServiceInstanceNode(){
+        zookeeperHelper.createServiceInstanceNode("com.suny.rpc.nettyrpc.api.UserService");
+    }
+
+
+    @Test
+    void testGetChildrenNodesValue() {
+        final List<String> childrenNodesValue = zookeeperHelper.getChildrenNodesValue("com.suny.rpc.nettyrpc.api.UserService");
+        for (String s : childrenNodesValue) {
+            System.out.println(s);
+        }
+    }
 
     @Test
     public void testGetAll() throws Exception {

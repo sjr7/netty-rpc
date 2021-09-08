@@ -8,8 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
-import java.net.InetSocketAddress;
-
 /**
  * Zookeeper 服务
  *
@@ -34,13 +32,13 @@ public class ZookeeperRpcServiceRegistryImpl extends AbstractRpcServiceRegistry 
 
     @Override
     void doRegister(RpcServiceRegistryParam registryParam) {
-        zookeeperHelper.createNode(ZookeeperHelper.BASE_RPC_PATH + "/" + registryParam.getServiceName());
+        zookeeperHelper.createServiceInstanceNode(registryParam.getServiceName());
     }
 
     @Override
     void doUnRegister(RpcServiceUnRegistryParam unRegistryParam) {
-        final InetSocketAddress inetSocketAddress = new InetSocketAddress(unRegistryParam.getIp(), unRegistryParam.getPort());
-        zookeeperHelper.removeNode(inetSocketAddress);
+        // final InetSocketAddress inetSocketAddress = new InetSocketAddress(unRegistryParam.getIp(), unRegistryParam.getPort());
+        // zookeeperHelper.removeNode(inetSocketAddress);
     }
 
 }

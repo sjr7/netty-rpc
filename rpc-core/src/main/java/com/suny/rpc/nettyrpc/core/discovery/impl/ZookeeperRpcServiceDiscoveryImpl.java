@@ -29,7 +29,7 @@ public class ZookeeperRpcServiceDiscoveryImpl extends AbstractRpcServiceDiscover
 
     @Override
     List<String> doGetServiceInstanceList(String serviceName) {
-        List<String> childrenNodes = zookeeperHelper.getChildrenNodes(serviceName);
+        List<String> childrenNodes = zookeeperHelper.getServiceInstanceNode(serviceName);
         if (CollectionUtils.isEmpty(childrenNodes)) {
             // throw new RuntimeException("未找到" + serviceName + "服务节点");
             return Collections.emptyList();
@@ -41,8 +41,8 @@ public class ZookeeperRpcServiceDiscoveryImpl extends AbstractRpcServiceDiscover
 
     @Override
     public Map<String, List<String>> getAllServiceInstance() {
-
-        return null;
+        final Map<String, List<String>> allServiceInstanceNode = zookeeperHelper.getAllServiceInstanceNode();
+        return allServiceInstanceNode;
     }
 
 

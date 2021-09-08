@@ -32,6 +32,7 @@ public interface RpcServiceDiscovery extends IRegistryCenter {
      *
      * @return 所有服务信息
      */
+    @Deprecated
     Map<String, List<String>> getAllServiceInstance();
 
 }
