@@ -2,6 +2,8 @@ package com.suny.rpc.nettyrpc.core.spring;
 
 import com.suny.rpc.nettyrpc.core.annotations.Reference;
 import com.suny.rpc.nettyrpc.core.annotations.Service;
+import com.suny.rpc.nettyrpc.core.client.RpcClientProxy;
+import com.suny.rpc.nettyrpc.core.network.RpcRequestSender;
 import com.suny.rpc.nettyrpc.core.registry.RpcServiceRegistry;
 import com.suny.rpc.nettyrpc.core.registry.param.RpcServiceRegistryParam;
 import lombok.SneakyThrows;
@@ -23,10 +25,12 @@ import java.net.InetAddress;
 @Slf4j
 public class RpcBeanProcessor implements BeanPostProcessor {
 
+    private final RpcRequestSender requestSender;
     private final RpcServiceRegistry rpcServiceRegistry;
 
-    public RpcBeanProcessor(RpcServiceRegistry rpcServiceRegistry) {
+    public RpcBeanProcessor(RpcServiceRegistry rpcServiceRegistry, RpcRequestSender requestSender) {
         this.rpcServiceRegistry = rpcServiceRegistry;
+        this.requestSender = requestSender;
     }
 
 
@@ -66,8 +70,17 @@ public class RpcBeanProcessor implements BeanPostProcessor {
             log.info("【@Reference 注入】{}.{}", beanClass.getName(), field.getName());
             // 将代理过后的 bean 注入到字段中
 
+            final RpcClientProxy rpcClientProxy = new RpcClientProxy(requestSender);
+            final Object proxy = rpcClientProxy.getProxy(field.getType());
+            field.setAccessible(true);
+            try {
+                field.set(bean, proxy);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException("属性" + beanName + field.getName() + "赋值失败");
+            }
+
         }
 
-        return null;
+        return bean;
     }
 }
