@@ -1,5 +1,6 @@
 package com.suny.rpc.nettyrpc.core.registry.impl;
 
+import com.suny.rpc.nettyrpc.core.process.RpcRequestProcessor;
 import com.suny.rpc.nettyrpc.core.registry.RpcServiceRegistry;
 import com.suny.rpc.nettyrpc.core.registry.param.RpcServiceRegistryParam;
 import com.suny.rpc.nettyrpc.core.registry.param.RpcServiceUnRegistryParam;
@@ -12,9 +13,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public abstract class AbstractRpcServiceRegistry implements RpcServiceRegistry {
 
+
     @Override
     public void register(RpcServiceRegistryParam registryParam) {
         doRegister(registryParam);
+        RpcRequestProcessor.addRpcBean(registryParam.getServiceName(), registryParam.getRpcBean());
         log.info("【{} RPC服务注册】{} >> {}:{}", getRegistryCenterType().getName(), registryParam.getServiceName(), registryParam.getIp(), registryParam.getPort());
     }
 
@@ -23,6 +26,7 @@ public abstract class AbstractRpcServiceRegistry implements RpcServiceRegistry {
     @Override
     public void unRegister(RpcServiceUnRegistryParam unRegistryParam) {
         doUnRegister(unRegistryParam);
+        RpcRequestProcessor.remove(unRegistryParam.getServiceName());
         log.info("【{} RPC服务反注册】{} >> {}:{}", getRegistryCenterType().getName(), unRegistryParam.getServiceName(), unRegistryParam.getIp(), unRegistryParam.getPort());
     }
 
