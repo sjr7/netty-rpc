@@ -2,6 +2,7 @@ package com.suny.rpc.nettyrpc.core.client;
 
 import com.suny.rpc.nettyrpc.core.codec.MessageDecoder;
 import com.suny.rpc.nettyrpc.core.codec.MessageEncoder;
+import com.suny.rpc.nettyrpc.core.network.ChannelManager;
 import com.suny.rpc.nettyrpc.core.serialize.SerializerFactory;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
@@ -45,22 +46,10 @@ public class NettyClient {
                     }
                 });
 
+        ChannelManager.setBootstrap(bootstrap);
     }
 
-    @SneakyThrows
-    public Channel connect(InetSocketAddress address) {
-        CompletableFuture<Channel> future = new CompletableFuture<>();
-        bootstrap.connect(address).addListener((ChannelFutureListener) f -> {
-            if (f.isSuccess()) {
-                log.info("连接 {}成功", address.toString());
-                future.complete(f.channel());
-            } else {
-                throw new IllegalStateException();
-            }
-        });
 
-        return future.get();
-    }
 
 
 }

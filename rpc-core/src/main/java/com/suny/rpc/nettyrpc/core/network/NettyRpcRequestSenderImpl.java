@@ -43,7 +43,7 @@ public class NettyRpcRequestSenderImpl implements RpcRequestSender {
         RequestFutureManager.addFuture(rpcRequest.getSequence(), future);
 
         RpcRequestPacket rpcRequestPacket = new RpcRequestPacket();
-        rpcRequestPacket.setData(rpcRequest);
+        rpcRequestPacket.setRpcRequest(rpcRequest);
 
 
         channel.writeAndFlush(rpcRequestPacket).addListener((ChannelFutureListener) f -> {

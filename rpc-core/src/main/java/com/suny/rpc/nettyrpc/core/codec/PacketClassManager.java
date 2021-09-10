@@ -20,8 +20,8 @@ public class PacketClassManager {
 
     static {
         PACKET_CLASS_MAP.put(PacketType.HEART_BEAT.getType(), HeartBeatPacket.class);
-        PACKET_CLASS_MAP.put(PacketType.REQUEST.getType(), RpcRequestPacket.class);
-        PACKET_CLASS_MAP.put(PacketType.RESPONSE.getType(), RpcResponsePacket.class);
+        PACKET_CLASS_MAP.put(PacketType.RPC_REQUEST.getType(), RpcRequestPacket.class);
+        PACKET_CLASS_MAP.put(PacketType.RPC_RESPONSE.getType(), RpcResponsePacket.class);
     }
 
     public static Class<? extends Packet> getPacketClass(byte packetType) {

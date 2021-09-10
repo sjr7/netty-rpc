@@ -19,12 +19,12 @@ public enum PacketType {
     /**
      * 请求包
      */
-    REQUEST((byte) 1),
+    RPC_REQUEST((byte) 1),
 
     /**
      * 应答包
      */
-    RESPONSE((byte) 2);
+    RPC_RESPONSE((byte) 2);
 
     private byte type;
 }

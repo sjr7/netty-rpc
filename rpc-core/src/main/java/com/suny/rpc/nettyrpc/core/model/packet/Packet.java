@@ -1,7 +1,9 @@
 package com.suny.rpc.nettyrpc.core.model.packet;
 
 import com.suny.rpc.nettyrpc.core.enums.PacketType;
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.Setter;
 
 import java.io.Serializable;
 
@@ -19,13 +21,8 @@ public abstract class Packet implements Serializable {
     /**
      * 魔数. 标识协议
      */
+    @Setter(AccessLevel.NONE)
     private byte magicNumber = 66;
-
-
-    /**
-     * 请求数据
-     */
-    private Object data;
 
     /**
      * 获取消息类型
