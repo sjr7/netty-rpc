@@ -2,7 +2,9 @@ package com.suny.rpc.nettyrpc.core.client;
 
 import com.suny.rpc.nettyrpc.core.enums.PacketType;
 import com.suny.rpc.nettyrpc.core.model.RpcResponse;
+import com.suny.rpc.nettyrpc.core.model.packet.HeartBeatPacket;
 import com.suny.rpc.nettyrpc.core.model.packet.Packet;
+import com.suny.rpc.nettyrpc.core.model.packet.RpcResponsePacket;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
@@ -22,10 +24,12 @@ public class RpcClientChannelInboundHandlerImpl extends SimpleChannelInboundHand
         final PacketType packetType = msg.getPacketType();
 
         if (packetType == PacketType.HEART_BEAT) {
-            log.info("心跳帧 [{}]", msg.getData());
+            HeartBeatPacket beatPacket = (HeartBeatPacket) msg;
+            log.info("心跳帧 [{}]", beatPacket.getFlag());
         } else {
             // 收到服务端应答
-            final RpcResponse response = (RpcResponse) msg.getData();
+            RpcResponsePacket responsePacket = (RpcResponsePacket) msg;
+            final RpcResponse response = responsePacket.getRpcResponse();
             RequestFutureManager.removeAndComplete(response);
         }
 

@@ -2,6 +2,7 @@ package com.suny.rpc.nettyrpc.core.model.packet;
 
 import com.suny.rpc.nettyrpc.core.enums.PacketType;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.Setter;
 
 /**
@@ -13,6 +14,7 @@ public class HeartBeatPacket extends Packet {
     public static final byte PING = 1;
     public static final byte PONG = 2;
 
+    @Getter
     @Setter(AccessLevel.NONE)
     private byte flag;
 

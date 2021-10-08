@@ -3,6 +3,7 @@ package com.suny.rpc.nettyrpc.core.ext.zookeeper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.framework.api.ACLBackgroundPathAndBytesable;
 import org.apache.curator.framework.api.GetDataBuilder;
 import org.apache.curator.framework.imps.CuratorFrameworkState;
 import org.apache.curator.framework.recipes.cache.PathChildrenCache;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.stereotype.Component;
 
 import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -42,10 +44,24 @@ public class ZookeeperHelper implements DisposableBean {
      * @param rpcServiceName 服务类名
      */
     public void createServiceInstanceNode(String rpcServiceName) {
+        createServiceInstanceNode(rpcServiceName, null);
+    }
+
+    /**
+     * 创建服务节点
+     *
+     * @param rpcServiceName 服务类名
+     */
+    public void createServiceInstanceNode(String rpcServiceName, String data) {
         checkInit();
         final String serviceNode = BASE_RPC_PATH + "/" + rpcServiceName + "/node";
         try {
-            zookeeperClient.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL_SEQUENTIAL).forPath(serviceNode);
+            ACLBackgroundPathAndBytesable<String> pathAndBytesable = zookeeperClient.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL_SEQUENTIAL);
+            if (data == null) {
+                pathAndBytesable.forPath(serviceNode);
+            } else {
+                pathAndBytesable.forPath(serviceNode, data.getBytes(StandardCharsets.UTF_8));
+            }
         } catch (Exception e) {
             log.info("节点 {} 创建失败", serviceNode, e);
             throw new RuntimeException("创建节点" + serviceNode + "失败", e);

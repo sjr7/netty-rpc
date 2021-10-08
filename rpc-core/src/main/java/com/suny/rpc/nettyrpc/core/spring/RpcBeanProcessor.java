@@ -6,6 +6,7 @@ import com.suny.rpc.nettyrpc.core.client.RpcClientProxy;
 import com.suny.rpc.nettyrpc.core.network.RpcRequestSender;
 import com.suny.rpc.nettyrpc.core.registry.RpcServiceRegistry;
 import com.suny.rpc.nettyrpc.core.registry.param.RpcServiceRegistryParam;
+import com.suny.rpc.nettyrpc.core.server.NettyServerProperties;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
@@ -27,10 +28,12 @@ public class RpcBeanProcessor implements BeanPostProcessor {
 
     private final RpcRequestSender requestSender;
     private final RpcServiceRegistry rpcServiceRegistry;
+    private final NettyServerProperties nettyServerProperties;
 
-    public RpcBeanProcessor(RpcServiceRegistry rpcServiceRegistry, RpcRequestSender requestSender) {
+    public RpcBeanProcessor(RpcServiceRegistry rpcServiceRegistry, RpcRequestSender requestSender, NettyServerProperties nettyServerProperties) {
         this.rpcServiceRegistry = rpcServiceRegistry;
         this.requestSender = requestSender;
+        this.nettyServerProperties = nettyServerProperties;
     }
 
 
@@ -47,7 +50,7 @@ public class RpcBeanProcessor implements BeanPostProcessor {
         RpcServiceRegistryParam registryParam = new RpcServiceRegistryParam();
         registryParam.setServiceName(bean.getClass().getInterfaces()[0].getCanonicalName());
         registryParam.setIp(InetAddress.getLocalHost().getHostAddress());
-        registryParam.setPort(5000);
+        registryParam.setPort(nettyServerProperties.getServerPort());
         registryParam.setRpcBean(bean);
 
 

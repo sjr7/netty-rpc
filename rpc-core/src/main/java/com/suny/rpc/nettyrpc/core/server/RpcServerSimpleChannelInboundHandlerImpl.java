@@ -44,6 +44,7 @@ public class RpcServerSimpleChannelInboundHandlerImpl extends SimpleChannelInbou
             rpcResponsePacket.setRpcResponse(rpcResponse);
 
             ctx.writeAndFlush(rpcResponsePacket).addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
+            log.info("服务端处理请求 {}-{} 完毕. 应答结果: {}", rpcRequest.getSequence(), packetType, rpcResponse);
         }
 
     }

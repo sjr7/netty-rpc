@@ -44,9 +44,9 @@ public class ChannelManager {
 
     public static Channel get(InetSocketAddress address) {
         final String s = address.toString();
-        if (!CHANNEL_MAP.containsKey(s)) {
-            return null;
-        }
+//        if (!CHANNEL_MAP.containsKey(s)) {
+//            return null;
+//        }
 
         final Channel channel = CHANNEL_MAP.get(s);
         if (channel == null) {

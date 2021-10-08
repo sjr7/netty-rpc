@@ -20,8 +20,8 @@ public class RpcRequest implements Serializable {
     /**
      * 请求流水号
      */
-    @Setter(AccessLevel.NONE)
-    private String sequence = UUID.randomUUID().toString();
+//    @Setter(AccessLevel.NONE)
+    private String sequence;
 
 
     /**

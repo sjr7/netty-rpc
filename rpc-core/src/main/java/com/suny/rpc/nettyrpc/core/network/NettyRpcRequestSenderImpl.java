@@ -7,7 +7,9 @@ import com.suny.rpc.nettyrpc.core.model.RpcResponse;
 import com.suny.rpc.nettyrpc.core.model.packet.RpcRequestPacket;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +27,7 @@ public class NettyRpcRequestSenderImpl implements RpcRequestSender {
     @Autowired
     private RpcServiceDiscovery rpcServiceDiscovery;
 
+    @SneakyThrows
     @Override
     public RpcResponse sendRpcRequest(RpcRequest rpcRequest) {
         CompletableFuture<RpcResponse> future = new CompletableFuture<>();
@@ -33,8 +36,13 @@ public class NettyRpcRequestSenderImpl implements RpcRequestSender {
         final String className = rpcRequest.getClassName();
         final String serviceInstance = rpcServiceDiscovery.getServiceInstance(className);
 
+        if (StringUtils.isBlank(serviceInstance)) {
+            throw new RuntimeException(className + "暂无服务提供者");
+        }
+
+        String[] split = serviceInstance.split(":");
         // 查找 channel
-        final Channel channel = ChannelManager.get(new InetSocketAddress(serviceInstance, 5000));
+        final Channel channel = ChannelManager.get(new InetSocketAddress(split[0], Integer.parseInt(split[1])));
         if (channel == null || !channel.isActive()) {
             throw new IllegalStateException();
         }
@@ -57,6 +65,6 @@ public class NettyRpcRequestSenderImpl implements RpcRequestSender {
         });
 
 
-        return null;
+        return future.get();
     }
 }

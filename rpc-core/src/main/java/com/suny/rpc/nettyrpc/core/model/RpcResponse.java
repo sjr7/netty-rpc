@@ -2,6 +2,7 @@ package com.suny.rpc.nettyrpc.core.model;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
 import java.io.Serializable;
@@ -13,6 +14,7 @@ import java.io.Serializable;
 @Getter
 @EqualsAndHashCode
 @ToString
+@Setter
 public class RpcResponse implements Serializable {
 
     private static final long serialVersionUID = 2964937493568971128L;

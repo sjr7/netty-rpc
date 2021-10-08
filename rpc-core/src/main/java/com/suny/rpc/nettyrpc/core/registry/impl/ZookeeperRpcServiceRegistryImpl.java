@@ -32,7 +32,8 @@ public class ZookeeperRpcServiceRegistryImpl extends AbstractRpcServiceRegistry 
 
     @Override
     void doRegister(RpcServiceRegistryParam registryParam) {
-        zookeeperHelper.createServiceInstanceNode(registryParam.getServiceName());
+        String address = registryParam.getIp() + ":" + registryParam.getPort();
+        zookeeperHelper.createServiceInstanceNode(registryParam.getServiceName(), address);
     }
 
     @Override

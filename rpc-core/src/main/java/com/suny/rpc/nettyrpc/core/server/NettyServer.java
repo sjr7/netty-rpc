@@ -22,12 +22,11 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 public class NettyServer {
-    public static final int PORT = 50001;
 
     private SerializerFactory serializerFactory;
 
 
-    public NettyServer(SerializerFactory serializerFactory) {
+    public NettyServer(int nettyPort, SerializerFactory serializerFactory) {
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         DefaultEventExecutorGroup defaultEventExecutorGroup = new DefaultEventExecutorGroup(Runtime.getRuntime().availableProcessors() * 2);
@@ -53,7 +52,8 @@ public class NettyServer {
 
         final ChannelFuture future;
         try {
-            future = bootstrap.bind(PORT).sync();
+            future = bootstrap.bind(nettyPort).sync();
+            log.info("Netty 服务启动完成. {}", nettyPort);
             future.channel().closeFuture().sync();
         } catch (InterruptedException e) {
             log.error("Netty 启动失败", e);
