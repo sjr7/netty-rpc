@@ -1,5 +1,7 @@
 package com.suny.rpc.nettyrpc.core.model;
 
+import com.suny.rpc.nettyrpc.core.enums.PacketType;
+import com.suny.rpc.nettyrpc.core.model.packet.Packet;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,17 +14,17 @@ import java.io.Serializable;
  * @date 2021-09-09 10:19
  */
 @Getter
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = true)
 @ToString
 @Setter
-public class RpcResponse implements Serializable {
+public class RpcResponse extends Packet implements Serializable {
 
     private static final long serialVersionUID = 2964937493568971128L;
 
     /**
      * 流水号
      */
-    private final String sequence;
+    private String sequence;
 
     /**
      * 异常信息
@@ -43,5 +45,17 @@ public class RpcResponse implements Serializable {
     public RpcResponse(String sequence, Object result) {
         this.sequence = sequence;
         this.result = result;
+    }
+
+    /**
+     * 只提供给反序列化使用
+     */
+    @Deprecated
+    public RpcResponse() {
+    }
+
+    @Override
+    public PacketType getPacketType() {
+        return PacketType.RPC_RESPONSE;
     }
 }

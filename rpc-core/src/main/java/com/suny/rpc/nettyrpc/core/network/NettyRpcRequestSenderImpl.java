@@ -4,7 +4,6 @@ import com.suny.rpc.nettyrpc.core.client.RequestFutureManager;
 import com.suny.rpc.nettyrpc.core.discovery.RpcServiceDiscovery;
 import com.suny.rpc.nettyrpc.core.model.RpcRequest;
 import com.suny.rpc.nettyrpc.core.model.RpcResponse;
-import com.suny.rpc.nettyrpc.core.model.packet.RpcRequestPacket;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import lombok.SneakyThrows;
@@ -50,13 +49,13 @@ public class NettyRpcRequestSenderImpl implements RpcRequestSender {
 
         RequestFutureManager.addFuture(rpcRequest.getSequence(), future);
 
-        RpcRequestPacket rpcRequestPacket = new RpcRequestPacket();
-        rpcRequestPacket.setRpcRequest(rpcRequest);
+//        RpcRequestPacket rpcRequestPacket = new RpcRequestPacket();
+//        rpcRequestPacket.setRpcRequest(rpcRequest);
 
 
-        channel.writeAndFlush(rpcRequestPacket).addListener((ChannelFutureListener) f -> {
+        channel.writeAndFlush(rpcRequest).addListener((ChannelFutureListener) f -> {
             if (f.isSuccess()) {
-                log.info("客户端消息发送成功! [{}]", rpcRequestPacket);
+                log.info("客户端消息发送成功! [{}]", rpcRequest);
             } else {
                 f.channel().close();
                 future.completeExceptionally(f.cause());

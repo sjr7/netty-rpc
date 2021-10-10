@@ -56,11 +56,10 @@ public class ZookeeperHelper implements DisposableBean {
         checkInit();
         final String serviceNode = BASE_RPC_PATH + "/" + rpcServiceName + "/node";
         try {
-            ACLBackgroundPathAndBytesable<String> pathAndBytesable = zookeeperClient.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL_SEQUENTIAL);
             if (data == null) {
-                pathAndBytesable.forPath(serviceNode);
+                zookeeperClient.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL_SEQUENTIAL).forPath(serviceNode);
             } else {
-                pathAndBytesable.forPath(serviceNode, data.getBytes(StandardCharsets.UTF_8));
+                zookeeperClient.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL_SEQUENTIAL).forPath(serviceNode, data.getBytes(StandardCharsets.UTF_8));
             }
         } catch (Exception e) {
             log.info("节点 {} 创建失败", serviceNode, e);

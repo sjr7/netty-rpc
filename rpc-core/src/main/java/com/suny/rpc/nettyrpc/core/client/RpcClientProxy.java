@@ -40,6 +40,8 @@ public class RpcClientProxy implements InvocationHandler {
         rpcRequest.setParameters(args);
 
         final RpcResponse rpcResponse = rpcRequestSender.sendRpcRequest(rpcRequest);
+
+        // todo 这里有个bug，由于 rpcResponse 是个嵌套对象,里面的 Object 结果会被解析成 jsonobject 对象导致报错
         return rpcResponse.getResult();
     }
 }

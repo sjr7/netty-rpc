@@ -11,6 +11,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
+@Deprecated
 public class RpcRequestPacket extends Packet {
 
     private RpcRequest rpcRequest;
